@@ -20,4 +20,4 @@ vault write transit/encrypt/tf-encryption-key -format=json plaintext=$(cat backe
 
 ## Template customisation
 
-Replace all occurrences of `INSTANCE-NAME`.
+Replace all occurrences of `homelab-k8s-cluster-room101-a7d-mc`.
