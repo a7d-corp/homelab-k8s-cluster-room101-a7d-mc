@@ -1,6 +1,6 @@
-# homelab-instance-template
+# homelab-k8s-cluster-room101-a7d-mc
 
-Template repo for managing an instance.
+This repo manages a Kubernetes cluster (`room101-a7d-mc`) which is used as a ClusterAPI Management Cluster to manage other Workload Clusters.
 
 ## Managing secrets
 
@@ -17,7 +17,3 @@ Encryption:
 ```bash
 vault write transit/encrypt/tf-encryption-key -format=json plaintext=$(cat backend-config | base64 -w 0) | jq -r .data.ciphertext > backend-config.enc
 ```
-
-## Template customisation
-
-Replace all occurrences of `homelab-k8s-cluster-room101-a7d-mc`.
