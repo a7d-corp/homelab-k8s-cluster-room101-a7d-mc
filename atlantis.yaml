@@ -8,6 +8,6 @@ workflows:
           extra_args: [-backend-config=/minio-backend-config/backend-config]
 projects:
 - name: cluster-homelab-k8s-cluster-room101-a7d-mc
-  dir: terraform/cluster
+  dir: cluster
   workflow: custom
 
