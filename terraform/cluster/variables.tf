@@ -26,6 +26,11 @@ variable "pm_tls_insecure" {
 
 # network configuration
 
+variable "net0_name" {
+  type        = string
+  description = "Primary interface name."
+}
+
 variable "net0_network_bridge" {
   type        = string
   description = "Host bridge to attach the interface to."
@@ -44,6 +49,11 @@ variable "net0_network_netmask" {
 variable "net0_vlan_tag" {
   type        = number
   description = ""
+}
+
+variable "net1_name" {
+  type        = string
+  description = "Secondary interface name."
 }
 
 variable "net1_network_bridge" {

@@ -18,12 +18,14 @@ resource_memory      = 3072
 network_model = "virtio"
 
 # primary nic config
+net0_name            = "ens18"
 net0_network_bridge  = "vmbr0"
 net0_vlan_tag        = 1001
 net0_network_cidr    = "172.25.0.64/23"
 net0_network_netmask = 23
 
 # secondary nic config
+net1_name            = "ens19"
 net1_network_bridge  = "vmbr0"
 net1_vlan_tag        = 1002
 net1_network_cidr    = "10.201.0.1/27"

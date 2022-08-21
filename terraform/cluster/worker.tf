@@ -54,13 +54,14 @@ module "worker_cloudinit_template" {
     gateway = local.primary_ip_gateway
     ip      = cidrhost(var.net0_network_cidr, count.index + local.primary_ip_offset_worker)
     macaddr = upper(macaddress.worker_net0_mac[count.index].address)
+    name    = var.net0_name
     netmask = var.net0_network_netmask
   }
 
   extra_networks = [{
     ips     = [cidrhost(var.net1_network_cidr, count.index + local.secondary_ip_offset_worker)]
     macaddr = upper(macaddress.worker_net1_mac[count.index].address)
-    name    = "eth1"
+    name    = var.net1_name
     netmask = var.net1_network_netmask
   }]
 
