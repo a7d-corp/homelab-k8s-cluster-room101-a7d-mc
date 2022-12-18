@@ -26,6 +26,12 @@ variable "pm_tls_insecure" {
 
 # network configuration
 
+variable "network_model" {
+  type        = string
+  default     = "virtio"
+  description = "Emulated NIC model."
+}
+
 variable "net0_network_bridge" {
   type        = string
   description = "Host bridge to attach the interface to."
