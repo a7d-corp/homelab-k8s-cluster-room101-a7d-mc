@@ -7,9 +7,3 @@ provider "proxmox" {
 }
 
 provider "vault" {}
-
-provider "consul" {
-  address    = "${data.vault_generic_secret.terraform_consul.data["host"]}:8500"
-  datacenter = data.vault_generic_secret.terraform_consul.data["datacenter"]
-  token      = data.vault_generic_secret.terraform_consul.data["token"]
-}

@@ -26,24 +26,9 @@ variable "pm_tls_insecure" {
 
 # network configuration
 
-variable "net0_name" {
-  type        = string
-  description = "Primary interface name."
-}
-
 variable "net0_network_bridge" {
   type        = string
   description = "Host bridge to attach the interface to."
-}
-
-variable "net0_network_cidr" {
-  type        = string
-  description = ""
-}
-
-variable "net0_network_netmask" {
-  type        = number
-  description = ""
 }
 
 variable "net0_vlan_tag" {
@@ -51,71 +36,44 @@ variable "net0_vlan_tag" {
   description = ""
 }
 
-variable "net1_name" {
+# master configuration
+
+variable "master_disk_type" {
   type        = string
-  description = "Secondary interface name."
+  description = "Master disk connectivity mode."
 }
 
-variable "net1_network_bridge" {
+variable "master_disk_storage" {
   type        = string
-  description = "Host bridge to attach the interface to."
+  description = "Master disk storage location"
 }
 
-variable "net1_network_cidr" {
+variable "master_disk_size" {
   type        = string
-  description = ""
+  description = "Master disk capacity."
 }
 
-variable "net1_network_netmask" {
-  type        = number
-  description = ""
-}
+# worker configuration
 
-variable "net1_vlan_tag" {
-  type        = number
-  description = ""
-}
-
-variable "network_model" {
+variable "worker_disk_type" {
   type        = string
-  description = "Name of the NIC model."
+  description = "Worker disk connectivity mode."
 }
 
-# cloudinit template configuration
-
-variable "connection_type" {
+variable "worker_disk_storage" {
   type        = string
-  default     = "ssh"
-  description = "Connection type to provision cloudinit file over."
+  description = "Worker disk storage location"
+}
+
+variable "worker_disk_size" {
+  type        = string
+  description = "Worker disk capacity."
 }
 
 # instance configuration
 
 variable "instance_domain" {
   type        = string
-  description = ""
-}
-
-variable "clone" {
-  type        = string
-  description = "Template image to clone."
-}
-
-variable "full_clone" {
-  type        = bool
-  default     = true
-  description = "Create a full clone instead of a linked clone."
-}
-
-variable "qemu_agent" {
-  type        = number
-  default     = 1
-  description = "Enable QEMU gueste agent."
-}
-
-variable "target_node" {
-  type        = string
-  default     = "hostname"
   description = ""
 }
 
@@ -144,36 +102,8 @@ variable "resource_memory" {
 
 variable "boot" {
   type        = string
-  default     = "c"
+  default     = "order=net0,scsi0"
   description = "Boot device order."
-}
-
-variable "network_bridge" {
-  type        = string
-  default     = "vmbr0"
-  description = ""
-}
-
-variable "os_type" {
-  type        = string
-  default     = "cloud-init"
-  description = ""
-}
-
-variable "cloudinit_cdrom_storage" {
-  type        = string
-  default     = "local-lvm"
-  description = "Storage location for the generated cloudinit CDROM image."
-}
-
-variable "citemplate_storage" {
-  description = "Storage for the cloudinit template files"
-  type        = string
-}
-
-variable "searchdomain" {
-  type        = string
-  description = ""
 }
 
 variable "nameserver" {
