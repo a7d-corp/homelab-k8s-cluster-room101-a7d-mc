@@ -13,9 +13,13 @@ resource_memory      = 3072
 network_model = "virtio"
 
 # primary nic config
-net0_name           = "ens18"
 net0_network_bridge = "vmbr0"
 net0_vlan_tag       = 1100
 
-searchdomain = "analbeard.com"
-nameserver   = "10.101.0.60"
+master_disk_type    = "scsi"
+master_disk_storage = "local-lvm"
+master_disk_size    = "20G"
+
+worker_disk_type    = "scsi"
+worker_disk_storage = "local-lvm"
+worker_disk_size    = "20G"

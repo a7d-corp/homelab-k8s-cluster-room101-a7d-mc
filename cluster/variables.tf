@@ -78,11 +78,6 @@ variable "worker_disk_size" {
 
 # instance configuration
 
-variable "instance_domain" {
-  type        = string
-  description = ""
-}
-
 variable "resource_pool" {
   type        = string
   description = "Pool to create resources in."
@@ -110,9 +105,4 @@ variable "boot" {
   type        = string
   default     = "order=net0,scsi0"
   description = "Boot device order."
-}
-
-variable "nameserver" {
-  type        = string
-  description = ""
 }
