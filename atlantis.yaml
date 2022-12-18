@@ -7,7 +7,7 @@ workflows:
       - init:
           extra_args: [-backend-config=/minio-backend-config/backend-config]
 projects:
-- name: cluster-homelab-k8s-cluster-room101-a7d-mc
+- name: homelab-k8s-cluster-room101-a7d-mc
   dir: cluster
   workflow: custom
 
