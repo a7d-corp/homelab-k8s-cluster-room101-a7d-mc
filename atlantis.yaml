@@ -6,8 +6,9 @@ workflows:
       - run: rm -rf .terraform
       - init:
           extra_args: [-backend-config=/minio-backend-config/backend-config]
+      - plan
 projects:
-- name: cluster-homelab-k8s-cluster-room101-a7d-mc
+- name: homelab-k8s-cluster-room101-a7d-mc
   dir: cluster
   workflow: custom
 

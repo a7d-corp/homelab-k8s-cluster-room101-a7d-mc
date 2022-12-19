@@ -1,12 +1,18 @@
 terraform {
+  required_version = ">= 1.0"
+
   required_providers {
-    proxmox = {
-      source  = "Telmate/proxmox"
-      version = "2.7.4"
-    }
     macaddress = {
       source  = "ivoronin/macaddress"
-      version = "0.2.2"
+      version = "~> 0.3.0"
+    }
+    proxmox = {
+      source  = "Telmate/proxmox"
+      version = "~> 2.9.0"
+    }
+    vault = {
+      source  = "hashicorp/vault"
+      version = "~> 3.11.0"
     }
   }
 }
