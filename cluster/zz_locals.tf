@@ -1,9 +1,9 @@
 locals {
-  master_count       = 3
+  master_count       = 0
   name_stub          = "room101-a7d-mc"
   vmid_base          = 400
   vmid_offset_master = 10
-  worker_count       = 3
+  worker_count       = 0
 
   host_list = ["host-01", "host-02", "host-03"]
 
