@@ -103,6 +103,6 @@ variable "resource_memory" {
 
 variable "boot" {
   type        = string
-  default     = "order=net0,scsi0"
+  default     = "order=net0;scsi0"
   description = "Boot device order."
 }
