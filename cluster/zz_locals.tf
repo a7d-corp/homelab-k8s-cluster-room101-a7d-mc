@@ -1,6 +1,6 @@
 locals {
   hastate            = "enabled"
-  master_count       = 1
+  master_count       = 0
   master_description = "kubernetes management cluster master"
   name_stub          = "room101-a7d-mc"
   vmid_base          = 400
