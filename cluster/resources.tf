@@ -5,7 +5,7 @@ resource "macaddress" "master_net0_mac" {
 module "master_instances" {
   count = local.master_count
 
-  source = "github.com/glitchcrab/terraform-module-proxmox-instance?ref=v1.3.0"
+  source = "github.com/glitchcrab/terraform-module-proxmox-instance?ref=v1.4.0"
 
   pve_instance_name        = "master${count.index}-${local.name_stub}"
   pve_instance_description = "kubernetes managment cluster master"
@@ -42,7 +42,7 @@ resource "macaddress" "worker_net0_mac" {
 module "worker_instances" {
   count = local.worker_count
 
-  source = "github.com/glitchcrab/terraform-module-proxmox-instance?ref=v1.3.0"
+  source = "github.com/glitchcrab/terraform-module-proxmox-instance?ref=v1.4.0"
 
   pve_instance_name        = "worker${count.index}-${local.name_stub}"
   pve_instance_description = "kubernetes managment cluster worker"
