@@ -8,7 +8,7 @@ module "master_instances" {
   source = "github.com/glitchcrab/terraform-module-proxmox-instance?ref=v1.4.0"
 
   pve_instance_name        = "master${count.index}-${local.name_stub}"
-  pve_instance_description = "kubernetes managment cluster master"
+  pve_instance_description = local.master_description
   vmid                     = local.vmid_base + count.index + local.vmid_offset_master
 
   target_node   = lookup(local.host_list[count.index], "name")
@@ -48,7 +48,7 @@ module "worker_instances" {
   source = "github.com/glitchcrab/terraform-module-proxmox-instance?ref=v1.4.0"
 
   pve_instance_name        = "worker${count.index}-${local.name_stub}"
-  pve_instance_description = "kubernetes managment cluster worker"
+  pve_instance_description = local.worker_description
   vmid                     = local.vmid_base + local.vmid_offset_master + 1 + count.index
 
   target_node   = lookup(local.host_list[count.index], "name")
