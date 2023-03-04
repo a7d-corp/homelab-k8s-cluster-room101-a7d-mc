@@ -11,8 +11,11 @@ module "master_instances" {
   pve_instance_description = "kubernetes managment cluster master"
   vmid                     = local.vmid_base + count.index + local.vmid_offset_master
 
-  target_node   = element(local.host_list, count.index)
+  target_node   = lookup(local.host_list[count.index], "name")
   resource_pool = var.resource_pool
+
+  hastate = local.hastate
+  hagroup = lookup(local.host_list[count.index], "hagroup")
 
   pxe_boot = true
 
@@ -48,8 +51,11 @@ module "worker_instances" {
   pve_instance_description = "kubernetes managment cluster worker"
   vmid                     = local.vmid_base + local.vmid_offset_master + 1 + count.index
 
-  target_node   = element(local.host_list, count.index)
+  target_node   = lookup(local.host_list[count.index], "name")
   resource_pool = var.resource_pool
+
+  hastate = local.hastate
+  hagroup = lookup(local.host_list[count.index], "hagroup")
 
   pxe_boot = true
 
