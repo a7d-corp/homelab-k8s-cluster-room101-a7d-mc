@@ -5,14 +5,17 @@ resource "macaddress" "master_net0_mac" {
 module "master_instances" {
   count = local.master_count
 
-  source = "github.com/glitchcrab/terraform-module-proxmox-instance?ref=v1.3.0"
+  source = "github.com/glitchcrab/terraform-module-proxmox-instance?ref=v1.4.0"
 
   pve_instance_name        = "master${count.index}-${local.name_stub}"
-  pve_instance_description = "kubernetes managment cluster master"
+  pve_instance_description = local.master_description
   vmid                     = local.vmid_base + count.index + local.vmid_offset_master
 
-  target_node   = element(local.host_list, count.index)
+  target_node   = lookup(local.host_list[count.index], "name")
   resource_pool = var.resource_pool
+
+  hastate = local.hastate
+  hagroup = lookup(local.host_list[count.index], "hagroup")
 
   pxe_boot = true
 
@@ -42,14 +45,17 @@ resource "macaddress" "worker_net0_mac" {
 module "worker_instances" {
   count = local.worker_count
 
-  source = "github.com/glitchcrab/terraform-module-proxmox-instance?ref=v1.3.0"
+  source = "github.com/glitchcrab/terraform-module-proxmox-instance?ref=v1.4.0"
 
   pve_instance_name        = "worker${count.index}-${local.name_stub}"
-  pve_instance_description = "kubernetes managment cluster worker"
+  pve_instance_description = local.worker_description
   vmid                     = local.vmid_base + local.vmid_offset_master + 1 + count.index
 
-  target_node   = element(local.host_list, count.index)
+  target_node   = lookup(local.host_list[count.index], "name")
   resource_pool = var.resource_pool
+
+  hastate = local.hastate
+  hagroup = lookup(local.host_list[count.index], "hagroup")
 
   pxe_boot = true
 

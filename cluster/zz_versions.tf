@@ -8,7 +8,7 @@ terraform {
     }
     proxmox = {
       source  = "Telmate/proxmox"
-      version = "~> 2.9.0"
+      version = "2.9.10"
     }
     vault = {
       source  = "hashicorp/vault"
