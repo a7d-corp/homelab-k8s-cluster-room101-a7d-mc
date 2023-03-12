@@ -1,13 +1,19 @@
 locals {
-  hastate            = "enabled"
-  master_count       = 0
-  master_description = "kubernetes management cluster master"
-  name_stub          = "room101-a7d-mc"
-  vmid_base          = 400
-  vmid_offset_master = 10
-  worker_count       = 0
-  worker_description = "kubernetes managment cluster worker"
+  # general config
+  name_stub   = "room101-a7d-mc"
+  vmid_base   = 400
+  vmid_offset = 10
 
+  # master config
+  master_count       = 0
+  master_description = "room101-a7d MC master"
+
+  # worker config
+  worker_count       = 0
+  worker_description = "room101-a7d MC worker"
+
+  # instance placement
+  hastate = "enabled"
   host_list = [
     {
       name    = "host-01"
@@ -23,5 +29,6 @@ locals {
     }
   ]
 
+  # proxmox config
   pm_host_address = data.vault_generic_secret.terraform_generic.data["host"]
 }
