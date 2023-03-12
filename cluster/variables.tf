@@ -101,6 +101,12 @@ variable "resource_memory" {
   description = ""
 }
 
+variable "pxe_boot" {
+  type        = string
+  default     = null
+  description = "Enable PXE booting"
+}
+
 variable "boot" {
   type        = string
   default     = "order=net0;scsi0"
