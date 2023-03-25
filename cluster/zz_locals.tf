@@ -7,10 +7,12 @@ locals {
   # master config
   master_count       = 0
   master_description = "room101-a7d MC master"
+  master_oncreate    = false
 
   # worker config
   worker_count       = 0
   worker_description = "room101-a7d MC worker"
+  worker_oncreate    = false
 
   # instance placement
   hastate = "enabled"

@@ -5,7 +5,7 @@ resource "macaddress" "master_net0_mac" {
 module "master_instances" {
   count = local.master_count
 
-  source = "github.com/glitchcrab/terraform-module-proxmox-instance?ref=v1.5.0"
+  source = "github.com/glitchcrab/terraform-module-proxmox-instance?ref=v1.6.0"
 
   pve_instance_name        = "master${count.index}-${local.name_stub}"
   pve_instance_description = local.master_description
@@ -23,6 +23,8 @@ module "master_instances" {
   sockets = var.resource_cpu_sockets
   memory  = var.resource_memory
   boot    = var.boot
+
+  oncreate = local.master_oncreate
 
   network_interfaces = [{
     bridge  = var.net0_network_bridge
@@ -45,7 +47,7 @@ resource "macaddress" "worker_net0_mac" {
 module "worker_instances" {
   count = local.worker_count
 
-  source = "github.com/glitchcrab/terraform-module-proxmox-instance?ref=v1.5.0"
+  source = "github.com/glitchcrab/terraform-module-proxmox-instance?ref=v1.6.0"
 
   pve_instance_name        = "worker${count.index}-${local.name_stub}"
   pve_instance_description = local.worker_description
@@ -63,6 +65,8 @@ module "worker_instances" {
   sockets = var.resource_cpu_sockets
   memory  = var.resource_memory
   boot    = var.boot
+
+  oncreate = local.worker_oncreate
 
   network_interfaces = [{
     bridge  = var.net0_network_bridge
