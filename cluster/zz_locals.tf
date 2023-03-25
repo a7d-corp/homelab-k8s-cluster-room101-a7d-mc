@@ -5,7 +5,7 @@ locals {
   vmid_offset = 10
 
   # master config
-  master_count       = 3
+  master_count       = 0
   master_description = "room101-a7d MC master"
 
   # worker config
