@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Generate a random string to be used for the VM's serial.
+
 ### Changed
 
 - General tidy in preparation for cluster creation.
