@@ -2,13 +2,21 @@ resource "macaddress" "master_net0_mac" {
   count = local.master_count
 }
 
+resource "random_string" "master_serial" {
+  count = local.master_count
+
+  length  = 16
+  special = false
+  upper   = false
+}
+
 module "master_instances" {
   count = local.master_count
 
-  source = "github.com/glitchcrab/terraform-module-proxmox-instance?ref=v1.5.0"
+  source = "github.com/glitchcrab/terraform-module-proxmox-instance?ref=v1.6.0"
 
   pve_instance_name        = "master${count.index}-${local.name_stub}"
-  pve_instance_description = local.master_description
+  pve_instance_description = "${local.master_description} (serial: ${random_string.master_serial[count.index].result})"
   vmid                     = local.vmid_base + count.index + local.vmid_offset
 
   target_node   = lookup(local.host_list[count.index], "name")
@@ -23,6 +31,8 @@ module "master_instances" {
   sockets = var.resource_cpu_sockets
   memory  = var.resource_memory
   boot    = var.boot
+
+  oncreate = local.master_oncreate
 
   network_interfaces = [{
     bridge  = var.net0_network_bridge
@@ -42,13 +52,21 @@ resource "macaddress" "worker_net0_mac" {
   count = local.worker_count
 }
 
+resource "random_string" "worker_serial" {
+  count = local.worker_count
+
+  length  = 16
+  special = false
+  upper   = false
+}
+
 module "worker_instances" {
   count = local.worker_count
 
-  source = "github.com/glitchcrab/terraform-module-proxmox-instance?ref=v1.5.0"
+  source = "github.com/glitchcrab/terraform-module-proxmox-instance?ref=v1.6.0"
 
   pve_instance_name        = "worker${count.index}-${local.name_stub}"
-  pve_instance_description = local.worker_description
+  pve_instance_description = "${local.worker_description} (serial: ${random_string.worker_serial[count.index].result})"
   vmid                     = local.vmid_base + count.index + local.vmid_offset + 5
 
   target_node   = lookup(local.host_list[count.index], "name")
@@ -63,6 +81,8 @@ module "worker_instances" {
   sockets = var.resource_cpu_sockets
   memory  = var.resource_memory
   boot    = var.boot
+
+  oncreate = local.worker_oncreate
 
   network_interfaces = [{
     bridge  = var.net0_network_bridge
