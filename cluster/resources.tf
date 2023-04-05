@@ -10,20 +10,74 @@ resource "random_string" "master_serial" {
   upper   = false
 }
 
+resource "random_uuid" "master_uuid" {
+  count = local.master_count
+}
+
+resource "null_resource" "master_smbios1_values" {
+  count      = local.master_count
+  depends_on = [module.master_instances]
+
+  provisioner "local-exec" {
+    command = <<EOF
+      curl --silent --insecure -H \
+         "Authorization: PVEAPIToken=${local.pve_token_id}=${local.pve_token}" \
+         -X POST --data-urlencode \
+         smbios1="serial=${random_string.master_serial[count.index].result},family=${local.family},sku=${local.master_sku},uuid=${random_uuid.master_uuid[count.index].result}" \
+         ${local.pm_api_url}/nodes/${local.master_placement[count.index].host}/qemu/${local.master_placement[count.index].vmid}/config
+    EOF
+  }
+}
+
+resource "null_resource" "master_stop" {
+  count      = local.master_count
+  depends_on = [null_resource.master_smbios1_values]
+
+  provisioner "local-exec" {
+    command = <<EOF
+      curl --silent --insecure -H \
+         "Authorization: PVEAPIToken=${local.pve_token_id}=${local.pve_token}" \
+         -X POST \
+         ${local.pm_api_url}/nodes/${local.master_placement[count.index].host}/qemu/${local.master_placement[count.index].vmid}/status/stop
+    EOF
+  }
+}
+
+resource "time_sleep" "master_sleep_10s" {
+  count      = local.master_count
+  depends_on = [null_resource.master_stop]
+
+  create_duration = "10s"
+}
+
+resource "null_resource" "master_start" {
+  count      = local.master_count
+  depends_on = [time_sleep.master_sleep_10s]
+
+  provisioner "local-exec" {
+    command = <<EOF
+      curl --silent --insecure -H \
+         "Authorization: PVEAPIToken=${local.pve_token_id}=${local.pve_token}" \
+         -X POST \
+         ${local.pm_api_url}/nodes/${local.master_placement[count.index].host}/qemu/${local.master_placement[count.index].vmid}/status/start
+    EOF
+  }
+}
+
 module "master_instances" {
   count = local.master_count
 
-  source = "github.com/glitchcrab/terraform-module-proxmox-instance?ref=v1.6.0"
+  source = "github.com/glitchcrab/terraform-module-proxmox-instance?ref=v1.8.0"
 
   pve_instance_name        = "master${count.index}-${local.name_stub}"
   pve_instance_description = "${local.master_description} (serial: ${random_string.master_serial[count.index].result})"
-  vmid                     = local.vmid_base + count.index + local.vmid_offset
+  vmid                     = lookup(local.master_placement[count.index], "vmid")
 
-  target_node   = lookup(local.host_list[count.index], "name")
+  target_node   = lookup(local.master_placement[count.index], "host")
   resource_pool = var.resource_pool
 
   hastate = local.hastate
-  hagroup = lookup(local.host_list[count.index], "hagroup")
+  hagroup = lookup(local.master_placement[count.index], "hagroup")
 
   pxe_boot = var.pxe_boot
 
@@ -32,7 +86,7 @@ module "master_instances" {
   memory  = var.resource_memory
   boot    = var.boot
 
-  oncreate = local.master_oncreate
+  oncreate = local.oncreate
 
   network_interfaces = [{
     bridge  = var.net0_network_bridge
@@ -60,20 +114,74 @@ resource "random_string" "worker_serial" {
   upper   = false
 }
 
+resource "random_uuid" "worker_uuid" {
+  count = local.worker_count
+}
+
+resource "null_resource" "worker_smbios1_values" {
+  count      = local.worker_count
+  depends_on = [module.worker_instances]
+
+  provisioner "local-exec" {
+    command = <<EOF
+      curl --silent --insecure -H \
+         "Authorization: PVEAPIToken=${local.pve_token_id}=${local.pve_token}" \
+         -X POST --data-urlencode \
+         smbios1="serial=${random_string.worker_serial[count.index].result},family=${local.family},sku=${local.worker_sku},uuid=${random_uuid.worker_uuid[count.index]}" \
+         ${local.pm_api_url}/nodes/${local.worker_placement[count.index].host}/qemu/${local.worker_placement[count.index].vmid}/config
+    EOF
+  }
+}
+
+resource "null_resource" "worker_stop" {
+  count      = local.worker_count
+  depends_on = [null_resource.worker_smbios1_values]
+
+  provisioner "local-exec" {
+    command = <<EOF
+      curl --silent --insecure -H \
+         "Authorization: PVEAPIToken=${local.pve_token_id}=${local.pve_token}" \
+         -X POST \
+         ${local.pm_api_url}/nodes/${local.worker_placement[count.index].host}/qemu/${local.worker_placement[count.index].vmid}/status/stop
+    EOF
+  }
+}
+
+resource "time_sleep" "worker_sleep_10s" {
+  count      = local.master_count
+  depends_on = [null_resource.master_stop]
+
+  create_duration = "10s"
+}
+
+resource "null_resource" "worker_start" {
+  count      = local.worker_count
+  depends_on = [time_sleep.worker_sleep_10s]
+
+  provisioner "local-exec" {
+    command = <<EOF
+      curl --silent --insecure -H \
+         "Authorization: PVEAPIToken=${local.pve_token_id}=${local.pve_token}" \
+         -X POST \
+         ${local.pm_api_url}/nodes/${local.worker_placement[count.index].host}/qemu/${local.worker_placement[count.index].vmid}/status/start
+    EOF
+  }
+}
+
 module "worker_instances" {
   count = local.worker_count
 
-  source = "github.com/glitchcrab/terraform-module-proxmox-instance?ref=v1.6.0"
+  source = "github.com/glitchcrab/terraform-module-proxmox-instance?ref=v1.8.0"
 
   pve_instance_name        = "worker${count.index}-${local.name_stub}"
   pve_instance_description = "${local.worker_description} (serial: ${random_string.worker_serial[count.index].result})"
-  vmid                     = local.vmid_base + count.index + local.vmid_offset + 5
+  vmid                     = lookup(local.worker_placement[count.index], "vmid")
 
-  target_node   = lookup(local.host_list[count.index], "name")
+  target_node   = lookup(local.worker_placement[count.index], "host")
   resource_pool = var.resource_pool
 
   hastate = local.hastate
-  hagroup = lookup(local.host_list[count.index], "hagroup")
+  hagroup = lookup(local.worker_placement[count.index], "hagroup")
 
   pxe_boot = var.pxe_boot
 
@@ -82,7 +190,7 @@ module "worker_instances" {
   memory  = var.resource_memory
   boot    = var.boot
 
-  oncreate = local.worker_oncreate
+  oncreate = local.oncreate
 
   network_interfaces = [{
     bridge  = var.net0_network_bridge
