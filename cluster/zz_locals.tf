@@ -6,7 +6,7 @@ locals {
   oncreate  = false
 
   # master config
-  master_count       = 0
+  master_count       = 1
   master_description = "room101-a7d MC master"
   master_placement = [
     {
