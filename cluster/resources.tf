@@ -1,3 +1,15 @@
+resource "local_file" "set_smbios_values" {
+  content = templatefile("${path.module}/templates/set_smbios_values.sh.tpl", {
+    pm_api_url = local.pm_api_url
+    master_sku = local.master_sku
+    worker_sku = local.worker_sku
+    family     = local.family
+  })
+
+  filename        = "scripts/set_smbios_values.sh"
+  file_permission = "0755"
+}
+
 resource "macaddress" "master_net0_mac" {
   count = local.master_count
 }
@@ -10,62 +22,9 @@ resource "random_string" "master_serial" {
   upper   = false
 }
 
-resource "random_uuid" "master_uuid" {
-  count = local.master_count
-}
-
-resource "null_resource" "master_smbios1_values" {
-  count      = local.master_count
-  depends_on = [module.master_instances]
-
-  provisioner "local-exec" {
-    command = <<EOF
-      curl --silent --insecure -H \
-         "Authorization: PVEAPIToken=${local.pve_token_id}=${local.pve_token}" \
-         -X POST --data-urlencode \
-         smbios1="serial=${random_string.master_serial[count.index].result},family=${local.family},sku=${local.master_sku},uuid=${random_uuid.master_uuid[count.index].result}" \
-         ${local.pm_api_url}/nodes/${local.master_placement[count.index].host}/qemu/${local.master_placement[count.index].vmid}/config
-    EOF
-  }
-}
-
-resource "null_resource" "master_stop" {
-  count      = local.master_count
-  depends_on = [null_resource.master_smbios1_values]
-
-  provisioner "local-exec" {
-    command = <<EOF
-      curl --silent --insecure -H \
-         "Authorization: PVEAPIToken=${local.pve_token_id}=${local.pve_token}" \
-         -X POST \
-         ${local.pm_api_url}/nodes/${local.master_placement[count.index].host}/qemu/${local.master_placement[count.index].vmid}/status/stop
-    EOF
-  }
-}
-
-resource "time_sleep" "master_sleep_10s" {
-  count      = local.master_count
-  depends_on = [null_resource.master_stop]
-
-  create_duration = "10s"
-}
-
-resource "null_resource" "master_start" {
-  count      = local.master_count
-  depends_on = [time_sleep.master_sleep_10s]
-
-  provisioner "local-exec" {
-    command = <<EOF
-      curl --silent --insecure -H \
-         "Authorization: PVEAPIToken=${local.pve_token_id}=${local.pve_token}" \
-         -X POST \
-         ${local.pm_api_url}/nodes/${local.master_placement[count.index].host}/qemu/${local.master_placement[count.index].vmid}/status/start
-    EOF
-  }
-}
-
 module "master_instances" {
-  count = local.master_count
+  count      = local.master_count
+  depends_on = [local_file.set_smbios_values]
 
   source = "github.com/glitchcrab/terraform-module-proxmox-instance?ref=v1.8.0"
 
@@ -81,6 +40,8 @@ module "master_instances" {
 
   pxe_boot = var.pxe_boot
 
+  # custom CPU profile
+  cpu     = var.cpu
   cores   = var.resource_cpu_cores
   sockets = var.resource_cpu_sockets
   memory  = var.resource_memory
@@ -102,6 +63,19 @@ module "master_instances" {
   }]
 }
 
+resource "null_resource" "set_master_smbios_values" {
+  count      = local.master_count
+  depends_on = [module.master_instances]
+
+  provisioner "local-exec" {
+    command = "/usr/bin/env bash scripts/set_smbios_values.sh ${replace(local.pve_token_id, "!", "'!'")} ${local.pve_token} ${local.master_placement[count.index].host} ${local.master_placement[count.index].vmid} ${local.master_sku} ${random_string.master_serial[count.index].result} ${local.master_placement[count.index].uuid}"
+  }
+
+  lifecycle {
+    ignore_changes = all
+  }
+}
+
 resource "macaddress" "worker_net0_mac" {
   count = local.worker_count
 }
@@ -114,62 +88,9 @@ resource "random_string" "worker_serial" {
   upper   = false
 }
 
-resource "random_uuid" "worker_uuid" {
-  count = local.worker_count
-}
-
-resource "null_resource" "worker_smbios1_values" {
-  count      = local.worker_count
-  depends_on = [module.worker_instances]
-
-  provisioner "local-exec" {
-    command = <<EOF
-      curl --silent --insecure -H \
-         "Authorization: PVEAPIToken=${local.pve_token_id}=${local.pve_token}" \
-         -X POST --data-urlencode \
-         smbios1="serial=${random_string.worker_serial[count.index].result},family=${local.family},sku=${local.worker_sku},uuid=${random_uuid.worker_uuid[count.index]}" \
-         ${local.pm_api_url}/nodes/${local.worker_placement[count.index].host}/qemu/${local.worker_placement[count.index].vmid}/config
-    EOF
-  }
-}
-
-resource "null_resource" "worker_stop" {
-  count      = local.worker_count
-  depends_on = [null_resource.worker_smbios1_values]
-
-  provisioner "local-exec" {
-    command = <<EOF
-      curl --silent --insecure -H \
-         "Authorization: PVEAPIToken=${local.pve_token_id}=${local.pve_token}" \
-         -X POST \
-         ${local.pm_api_url}/nodes/${local.worker_placement[count.index].host}/qemu/${local.worker_placement[count.index].vmid}/status/stop
-    EOF
-  }
-}
-
-resource "time_sleep" "worker_sleep_10s" {
-  count      = local.master_count
-  depends_on = [null_resource.master_stop]
-
-  create_duration = "10s"
-}
-
-resource "null_resource" "worker_start" {
-  count      = local.worker_count
-  depends_on = [time_sleep.worker_sleep_10s]
-
-  provisioner "local-exec" {
-    command = <<EOF
-      curl --silent --insecure -H \
-         "Authorization: PVEAPIToken=${local.pve_token_id}=${local.pve_token}" \
-         -X POST \
-         ${local.pm_api_url}/nodes/${local.worker_placement[count.index].host}/qemu/${local.worker_placement[count.index].vmid}/status/start
-    EOF
-  }
-}
-
 module "worker_instances" {
-  count = local.worker_count
+  count      = local.worker_count
+  depends_on = [local_file.set_smbios_values]
 
   source = "github.com/glitchcrab/terraform-module-proxmox-instance?ref=v1.8.0"
 
@@ -185,6 +106,8 @@ module "worker_instances" {
 
   pxe_boot = var.pxe_boot
 
+  # custom CPU profile
+  cpu     = var.cpu
   cores   = var.resource_cpu_cores
   sockets = var.resource_cpu_sockets
   memory  = var.resource_memory
@@ -205,3 +128,17 @@ module "worker_instances" {
     type    = var.worker_disk_type
   }]
 }
+
+resource "null_resource" "set_worker_smbios_values" {
+  count      = local.worker_count
+  depends_on = [module.worker_instances]
+
+  provisioner "local-exec" {
+    command = "/usr/bin/env bash scripts/set_smbios_values.sh ${replace(local.pve_token_id, "!", "'!'")} ${local.pve_token} ${local.worker_placement[count.index].host} ${local.worker_placement[count.index].vmid} ${local.worker_sku} ${random_string.worker_serial[count.index].result} ${local.worker_placement[count.index].uuid}"
+  }
+
+  lifecycle {
+    ignore_changes = all
+  }
+}
+

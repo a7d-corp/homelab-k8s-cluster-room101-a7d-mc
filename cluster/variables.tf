@@ -83,6 +83,11 @@ variable "resource_pool" {
   description = "Pool to create resources in."
 }
 
+variable "cpu" {
+  type        = string
+  description = "CPU model"
+}
+
 variable "resource_cpu_cores" {
   type        = number
   default     = 1
