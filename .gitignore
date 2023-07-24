@@ -1,3 +1,4 @@
 backend-config
 cluster/.terraform*
 bootstrap/.terraform*
+cluster/scripts/*
