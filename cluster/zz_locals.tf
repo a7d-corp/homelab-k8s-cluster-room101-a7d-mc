@@ -6,7 +6,7 @@ locals {
   oncreate  = false
 
   # master config
-  master_count       = 1
+  master_count       = 0
   master_description = "room101-a7d MC master"
   master_placement = [
     {
@@ -35,7 +35,7 @@ locals {
   worker_sku = "worker"
 
   # worker config
-  worker_count       = 2
+  worker_count       = 0
   worker_description = "room101-a7d MC worker"
   worker_placement = [
     {
