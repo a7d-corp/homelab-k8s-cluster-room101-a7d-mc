@@ -14,14 +14,6 @@ resource "macaddress" "master_net0_mac" {
   count = local.master_count
 }
 
-resource "random_string" "master_serial" {
-  count = local.master_count
-
-  length  = 16
-  special = false
-  upper   = false
-}
-
 module "master_instances" {
   count      = local.master_count
   depends_on = [local_file.set_smbios_values]
@@ -29,7 +21,7 @@ module "master_instances" {
   source = "github.com/glitchcrab/terraform-module-proxmox-instance?ref=v1.8.0"
 
   pve_instance_name        = "master${count.index}-${local.name_stub}"
-  pve_instance_description = "${local.master_description} (serial: ${random_string.master_serial[count.index].result})"
+  pve_instance_description = "${local.master_description} (UUID: ${local.master_placement[count.index].uuid})"
   vmid                     = lookup(local.master_placement[count.index], "vmid")
 
   target_node   = lookup(local.master_placement[count.index], "host")
@@ -68,7 +60,7 @@ resource "null_resource" "set_master_smbios_values" {
   depends_on = [module.master_instances]
 
   provisioner "local-exec" {
-    command = "/usr/bin/env bash scripts/set_smbios_values.sh ${replace(local.pve_token_id, "!", "'!'")} ${local.pve_token} ${local.master_placement[count.index].host} ${local.master_placement[count.index].vmid} ${local.master_sku} ${random_string.master_serial[count.index].result} ${local.master_placement[count.index].uuid}"
+    command = "/usr/bin/env bash scripts/set_smbios_values.sh ${replace(local.pve_token_id, "!", "'!'")} ${local.pve_token} ${local.master_placement[count.index].host} ${local.master_placement[count.index].vmid} ${local.master_sku} ${local.master_placement[count.index].uuid}"
   }
 
   lifecycle {
@@ -80,14 +72,6 @@ resource "macaddress" "worker_net0_mac" {
   count = local.worker_count
 }
 
-resource "random_string" "worker_serial" {
-  count = local.worker_count
-
-  length  = 16
-  special = false
-  upper   = false
-}
-
 module "worker_instances" {
   count      = local.worker_count
   depends_on = [local_file.set_smbios_values]
@@ -95,7 +79,7 @@ module "worker_instances" {
   source = "github.com/glitchcrab/terraform-module-proxmox-instance?ref=v1.8.0"
 
   pve_instance_name        = "worker${count.index}-${local.name_stub}"
-  pve_instance_description = "${local.worker_description} (serial: ${random_string.worker_serial[count.index].result})"
+  pve_instance_description = "${local.worker_description} (UUID: ${local.worker_placement[count.index].uuid})"
   vmid                     = lookup(local.worker_placement[count.index], "vmid")
 
   target_node   = lookup(local.worker_placement[count.index], "host")
@@ -134,7 +118,7 @@ resource "null_resource" "set_worker_smbios_values" {
   depends_on = [module.worker_instances]
 
   provisioner "local-exec" {
-    command = "/usr/bin/env bash scripts/set_smbios_values.sh ${replace(local.pve_token_id, "!", "'!'")} ${local.pve_token} ${local.worker_placement[count.index].host} ${local.worker_placement[count.index].vmid} ${local.worker_sku} ${random_string.worker_serial[count.index].result} ${local.worker_placement[count.index].uuid}"
+    command = "/usr/bin/env bash scripts/set_smbios_values.sh ${replace(local.pve_token_id, "!", "'!'")} ${local.pve_token} ${local.worker_placement[count.index].host} ${local.worker_placement[count.index].vmid} ${local.worker_sku} ${local.worker_placement[count.index].uuid}"
   }
 
   lifecycle {

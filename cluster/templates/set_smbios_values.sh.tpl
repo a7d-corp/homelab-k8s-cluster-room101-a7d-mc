@@ -7,7 +7,6 @@ pve_token="$${2}"
 host="$${3}"
 vmid="$${4}"
 role="$${5}"
-serial="$${6}"
 uuid="$${7}"
 
 if [[ "$${role}" ==  "master" ]]; then
@@ -37,7 +36,7 @@ done
 curl --silent --insecure -H \
   "Authorization: PVEAPIToken=$${pve_token_id}=$${pve_token}" \
   -X POST --data-urlencode \
-  smbios1="serial=$${serial},family=${family},sku=$${sku},uuid=$${uuid}" \
+  smbios1="family=${family},sku=$${sku},uuid=$${uuid}" \
   ${pm_api_url}/nodes/$${host}/qemu/$${vmid}/config
 _ret=$?
 
