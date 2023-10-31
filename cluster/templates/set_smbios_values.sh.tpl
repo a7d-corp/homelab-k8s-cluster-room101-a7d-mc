@@ -7,7 +7,7 @@ pve_token="$${2}"
 host="$${3}"
 vmid="$${4}"
 role="$${5}"
-uuid="$${7}"
+uuid="$${6}"
 
 if [[ "$${role}" ==  "master" ]]; then
   sku=${master_sku}

@@ -6,7 +6,7 @@ locals {
   oncreate  = false
 
   # master config
-  master_count       = 0
+  master_count       = 3
   master_description = "room101-a7d MC master"
   master_placement = [
     {
@@ -14,28 +14,31 @@ locals {
       host    = "host-01"
       vmid    = 410
       uuid    = "7eb6cf89-d07f-40a5-bfb0-c3003045e013"
+      mac     = "fa:cb:5f:cd:a5:67"
     },
     {
       hagroup = "ha-group-2"
       host    = "host-02"
       vmid    = 411
       uuid    = "203e63cb-a8aa-4bf8-a5b6-333090507777"
+      mac     = "6e:4b:dd:bb:cc:1f"
     },
     {
       hagroup = "ha-group-3"
       host    = "host-03"
       vmid    = 412
       uuid    = "2d1e5620-fdbc-4487-8f43-98cc9f36c308"
+      mac     = "66:af:0d:c0:73:ee"
     }
   ]
 
   # smbios1 values
   family     = replace(local.name_stub, "-", "")
-  master_sku = "master"
+  master_sku = "controlplane"
   worker_sku = "worker"
 
   # worker config
-  worker_count       = 0
+  worker_count       = 3
   worker_description = "room101-a7d MC worker"
   worker_placement = [
     {
