@@ -10,10 +10,6 @@ resource "local_file" "set_smbios_values" {
   file_permission = "0755"
 }
 
-resource "macaddress" "master_net0_mac" {
-  count = local.master_count
-}
-
 module "master_instances" {
   count      = local.master_count
   depends_on = [local_file.set_smbios_values]
@@ -32,6 +28,8 @@ module "master_instances" {
 
   pxe_boot = var.pxe_boot
 
+  qemu_agent = var.qemu_agent
+
   # custom CPU profile
   cpu     = var.cpu
   cores   = var.resource_cpu_cores
@@ -42,8 +40,9 @@ module "master_instances" {
   oncreate = local.oncreate
 
   network_interfaces = [{
-    bridge  = var.net0_network_bridge
-    macaddr = upper(macaddress.master_net0_mac[count.index].address)
+    bridge = var.net0_network_bridge
+    # https://www.hellion.org.uk/cgi-bin/randmac.pl?scope=local&type=unicast
+    macaddr = upper(lookup(local.master_placement[count.index], "mac"))
     model   = var.network_model
     tag     = var.net0_vlan_tag
   }]
@@ -89,6 +88,8 @@ module "worker_instances" {
   hagroup = lookup(local.worker_placement[count.index], "hagroup")
 
   pxe_boot = var.pxe_boot
+
+  qemu_agent = var.qemu_agent
 
   # custom CPU profile
   cpu     = var.cpu

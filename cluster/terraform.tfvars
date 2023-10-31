@@ -8,6 +8,8 @@ resource_cpu_cores   = 2
 resource_cpu_sockets = 1
 resource_memory      = 3072
 
+qemu_agent = 1
+
 pxe_boot = true
 boot     = "order=virtio0;net0"
 

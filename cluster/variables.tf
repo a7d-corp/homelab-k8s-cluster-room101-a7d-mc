@@ -117,3 +117,9 @@ variable "boot" {
   default     = "order=net0;scsi0"
   description = "Boot device order."
 }
+
+variable "qemu_agent" {
+  default     = 0
+  description = "Enable QEMU guest agent (must be installed in the template). Set to `1` to enable or `0` to disable."
+  type        = number
+}
